@@ -3,8 +3,7 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import * as CANNON from 'cannon-es'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import { Vector2, Vector3 } from 'three'
-import { OBB } from 'three/examples/jsm/math/OBB'
+import { Vector3 } from 'three'
 
 const scene = new THREE.Scene();
 
@@ -130,6 +129,33 @@ function onWindowResize() {
 const stats = Stats();
 document.body.appendChild(stats.dom);
 
+// ------------------------ FOOD SPAWN ------------------------
+
+const foodGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+const foodMesh: THREE.Mesh = new THREE.Mesh(foodGeometry, phongMaterial);
+
+const foodBoundingBox = new THREE.Box3(new Vector3(), new Vector3());
+
+
+const foodShape = new CANNON.Box(new CANNON.Vec3());
+const food = new CANNON.Body({ mass: 1 , material: foodMaterial});
+
+for (let i = 0; i < 1000; i++) {
+
+    foodMesh.position.x = Math.random() * 10;
+    foodMesh.position.y = 1;
+    foodMesh.position.z = Math.random() * 10;
+    foodMesh.castShadow = true;
+    scene.add(foodMesh);
+
+    food.addShape(foodShape);
+    food.position.x = foodMesh.position.x;
+    food.position.y = foodMesh.position.y;
+    food.position.z = foodMesh.position.z;
+    foodBoundingBox.setFromObject(foodMesh);
+    world.addBody(food);
+}
+
 // ------------------------ GUI ------------------------
 
 const gui = new GUI();
@@ -149,32 +175,11 @@ snakeHeadRotationFolder.add(snakeHead.quaternion, 'y', -20.0, 20.0, 0.1);
 snakeHeadRotationFolder.add(snakeHead.quaternion, 'z', -20.0, 20.0, 0.1);
 snakeHeadRotationFolder.add(snakeHead.quaternion, 'w', -20.0, 20.0, 0.1);
 snakeHeadRotationFolder.open();
-// ------------------------ FOOD SPAWN ------------------------
-
-const foodGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-const foodMesh: THREE.Mesh = new THREE.Mesh(foodGeometry, phongMaterial);
-
-const foodBoundingBox = new THREE.Box3(new Vector3(), new Vector3());
-
-
-const foodShape = new CANNON.Box(new CANNON.Vec3());
-const food = new CANNON.Body({ mass: 1 , material: foodMaterial});
-
-for (let i = 0; i < 1000; i++) {
-
-    foodMesh.position.x = Math.random() * 10;
-    foodMesh.position.y = 0.25;
-    foodMesh.position.z = Math.random() * 10;
-    foodMesh.castShadow = true;
-    scene.add(foodMesh);
-
-    food.addShape(foodShape);
-    food.position.x = foodMesh.position.x;
-    food.position.y = foodMesh.position.y;
-    food.position.z = foodMesh.position.z;
-    foodBoundingBox.setFromObject(foodMesh);
-    world.addBody(food);
-}
+const foodPositionFolder = gui.addFolder('Food Position');
+foodPositionFolder.add(food.position, 'x', -20.0, 20.0, 0.1);
+foodPositionFolder.add(food.position, 'y', -20.0, 20.0, 0.1);
+foodPositionFolder.add(food.position, 'z', -20.0, 20.0, 0.1);
+foodPositionFolder.open();
 
 const clock = new THREE.Clock();
 let delta;
@@ -183,7 +188,8 @@ const v = new THREE.Vector3();
 
 function checkCollisions() {
     if (snakeHeadBoundingBox.intersectsBox(foodBoundingBox)) {
-        console.log("HELL YEAH!")
+        food.position.set(0, 0, 1);
+        snakeHeadMesh.add(foodMesh);
     }
 }
 
@@ -192,7 +198,6 @@ let steering = false;
 
 let moveForward = 0;
 let moveSites = 0;
-let siteRotation = 0;
 function animate() {
     requestAnimationFrame(animate);
 
@@ -216,6 +221,18 @@ function animate() {
         snakeHead.quaternion.z,
         snakeHead.quaternion.w
     );
+    foodMesh.position.set(
+        food.position.x,
+        food.position.y,
+        food.position.z
+    );
+    foodMesh.quaternion.set(
+        food.quaternion.x,
+        food.quaternion.y,
+        food.quaternion.z,
+        food.quaternion.w
+    );
+
 
     // ------------------------ MOVING LOGIC ------------------------
 
