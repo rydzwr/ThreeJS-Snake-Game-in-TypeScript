@@ -4,6 +4,7 @@ import { GUI } from 'dat.gui'
 import * as CANNON from 'cannon-es'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import { Vector2, Vector3 } from 'three'
+import { OBB } from 'three/examples/jsm/math/OBB'
 
 const scene = new THREE.Scene();
 
@@ -91,6 +92,10 @@ world.addBody(groundBody);
 
 const snakeHeadGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const snakeHeadMesh: THREE.Mesh = new THREE.Mesh(snakeHeadGeometry, phongMaterial);
+
+const snakeHeadBoundingBox = new THREE.Box3(new Vector3(), new Vector3());
+snakeHeadBoundingBox.setFromObject(snakeHeadMesh);
+
 snakeHeadMesh.position.y = 3;
 snakeHeadMesh.castShadow = true;
 scene.add(snakeHeadMesh);
@@ -138,54 +143,63 @@ snakeHeadPositionFolder.add(snakeHead.position, 'x', -20.0, 20.0, 0.1);
 snakeHeadPositionFolder.add(snakeHead.position, 'y', -20.0, 20.0, 0.1);
 snakeHeadPositionFolder.add(snakeHead.position, 'z', -20.0, 20.0, 0.1);
 snakeHeadPositionFolder.open();
-
+const snakeHeadRotationFolder = gui.addFolder('Snake Head Rotation');
+snakeHeadRotationFolder.add(snakeHead.quaternion, 'x', -20.0, 20.0, 0.1);
+snakeHeadRotationFolder.add(snakeHead.quaternion, 'y', -20.0, 20.0, 0.1);
+snakeHeadRotationFolder.add(snakeHead.quaternion, 'z', -20.0, 20.0, 0.1);
+snakeHeadRotationFolder.add(snakeHead.quaternion, 'w', -20.0, 20.0, 0.1);
+snakeHeadRotationFolder.open();
 // ------------------------ FOOD SPAWN ------------------------
+
+const foodGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+const foodMesh: THREE.Mesh = new THREE.Mesh(foodGeometry, phongMaterial);
+
+const foodBoundingBox = new THREE.Box3(new Vector3(), new Vector3());
+
+
+const foodShape = new CANNON.Box(new CANNON.Vec3());
+const food = new CANNON.Body({ mass: 1 , material: foodMaterial});
+
 for (let i = 0; i < 1000; i++) {
 
-    const foodGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
-    const foodMesh: THREE.Mesh = new THREE.Mesh(foodGeometry, phongMaterial)
-    foodMesh.position.x = Math.random() * 100 - 50;
+    foodMesh.position.x = Math.random() * 10;
     foodMesh.position.y = 0.25;
-    foodMesh.position.z = Math.random() * 100 - 50;
-    foodMesh.castShadow = true
-    scene.add(foodMesh)
+    foodMesh.position.z = Math.random() * 10;
+    foodMesh.castShadow = true;
+    scene.add(foodMesh);
 
-
-    const foodShape = new CANNON.Box(new CANNON.Vec3())
-    const food = new CANNON.Body({ mass: 1 , material: foodMaterial})
-    food.addShape(foodShape)
-    food.position.x = foodMesh.position.x
-    food.position.y = foodMesh.position.y
-    food.position.z = foodMesh.position.z
-    world.addBody(food)
+    food.addShape(foodShape);
+    food.position.x = foodMesh.position.x;
+    food.position.y = foodMesh.position.y;
+    food.position.z = foodMesh.position.z;
+    foodBoundingBox.setFromObject(foodMesh);
+    world.addBody(food);
 }
-
-// ------------------------ TRYING TO ROTATE SNAKE HEAD WHEN TURNING ------------------------
-
-/*
-const rotationAxis = new CANNON.Vec3(0, 1, 0);
-const constraint = new CANNON.HingeConstraint(snakeHead, snakeHead, {
-    pivotA: new CANNON.Vec3(0, 1, 0),
-    axisA: rotationAxis,
-    maxForce: 0.99,
-});
-world.addConstraint(constraint);
-constraint.enableMotor();
-
- */
 
 const clock = new THREE.Clock();
 let delta;
 
 const v = new THREE.Vector3();
 
+function checkCollisions() {
+    if (snakeHeadBoundingBox.intersectsBox(foodBoundingBox)) {
+        console.log("HELL YEAH!")
+    }
+}
+
 let thrusting = false;
 let steering = false;
 
 let moveForward = 0;
 let moveSites = 0;
+let siteRotation = 0;
 function animate() {
     requestAnimationFrame(animate);
+
+    // @ts-ignore
+    snakeHeadBoundingBox.copy(snakeHeadMesh.geometry.boundingBox).applyMatrix4(snakeHeadMesh.matrixWorld);
+
+    checkCollisions();
 
     delta = Math.min(clock.getDelta(), 0.1);
     world.step(delta);
@@ -216,35 +230,16 @@ function animate() {
         thrusting = true;
     }
     if (keyMap['a'] || keyMap['ArrowLeft']) {
-        if (moveSites < 10.0) moveSites -= 0.1;
+        if (moveSites < 100.0) moveSites -= 0.1;
         steering = true;
     }
     if (keyMap['d'] || keyMap['ArrowRight']) {
-        if (moveSites > -10.0) moveSites += 0.1;
+        if (moveSites > -100.0) moveSites += 0.1;
         steering = true;
     }
     if (keyMap[' ']) {
-        if (moveForward > 0) {
-            moveForward -= 0.1;
-        }
-        if (moveForward < 0) {
-            moveForward += 0.1;
-        }
 
-        if (moveSites > 0) {
-            moveSites -= 0.1;
-        }
-        if (moveSites < 0) {
-            moveSites += 0.1;
-        }
     }
-
-    /*
-    constraint.setMotorSpeed(10);
-    constraint.axisA.y += moveSites;
-
-     */
-
 
     snakeHeadMesh.translateZ(moveForward);
     snakeHeadMesh.translateX(moveSites);
@@ -253,6 +248,10 @@ function animate() {
 
     if (!thrusting) {
         //not going forward or backwards so gradually slow down
+    }
+
+    if (!steering) {
+
     }
 
     // ------------------------ CAMERA FOCUS ON SNAKE HEAD ------------------------
