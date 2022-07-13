@@ -17,7 +17,6 @@ export class Food {
     private foodCount: number = 0;
 
     spawnFirstFood(scene: THREE.Scene, world: CANNON.World) {
-
         this.foodMaterial.friction = 10;
         this.foodMaterial.restitution = 0;
         this.foodMesh.name = 'food';
@@ -39,7 +38,6 @@ export class Food {
     }
 
     spawnNewFood(scene: THREE.Scene, world: CANNON.World) {
-
         if (this.foodCount === 0) {
             this.newFoodMesh.position.x = Math.random() * 10;
             this.newFoodMesh.position.y = 0.5;
