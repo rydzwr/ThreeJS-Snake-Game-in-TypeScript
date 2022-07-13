@@ -50,7 +50,6 @@ Ground.getInstance().buildGround(scene, world);
 
 Snake.getInstance().buildSnakeHead(scene, chaseCam, world);
 const snakeHeadMesh = Snake.getInstance().getSnakeHeadMesh();
-const snakeHeadBoundingBox = Snake.getInstance().getSnakeHeadBoundingBox();
 
 
 window.addEventListener('resize', onWindowResize, false);
@@ -86,7 +85,9 @@ function animate() {
 
     CollisionDetector.getInstance().detect();
 
-    Food.getInstance().spawnNewFood(scene, world);
+   Food.getInstance().spawnNewFood(scene, world);
+
+    Food.getInstance().animateFood();
 
     delta = Math.min(clock.getDelta(), 0.1);
     world.step(delta);

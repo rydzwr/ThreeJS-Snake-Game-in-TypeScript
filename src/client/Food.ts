@@ -51,6 +51,13 @@ export class Food {
         }
     }
 
+    animateFood() {
+        this.foodMesh.rotateX(0.01)
+        this.foodMesh.rotateZ(0.01)
+        this.newFoodMesh.rotateX(0.01)
+        this.newFoodMesh.rotateZ(0.01)
+    }
+
     countFood(scene: THREE.Scene) {
         for (let i = 0; i < scene.children.length; i++) {
             if(scene.children[i].name === "food") {
@@ -74,10 +81,6 @@ export class Food {
 
     public getFoodMesh() {
         return this.foodMesh;
-    }
-
-    public getFood() {
-        return this.food;
     }
 
     public static getInstance() {

@@ -8,6 +8,9 @@ export class MovingController {
     private steering = false;
     private speeding = false;
 
+    private worldBorder: number = 49.5;
+    private negativeWorldBorder: number = -49.5;
+
     private moveForward = 0;
     private moveSites = 0;
 
@@ -70,6 +73,15 @@ export class MovingController {
             }
         }
 
+        if (this.snakeHeadMesh.position.x >= this.worldBorder)
+            this.snakeHeadMesh.position.x = this.worldBorder;
+        if (this.snakeHeadMesh.position.x <= this.negativeWorldBorder)
+            this.snakeHeadMesh.position.x = this.negativeWorldBorder;
+
+        if (this.snakeHeadMesh.position.z >= this.worldBorder)
+            this.snakeHeadMesh.position.z = this.worldBorder;
+        if (this.snakeHeadMesh.position.z <= this.negativeWorldBorder)
+            this.snakeHeadMesh.position.z = this.negativeWorldBorder;
 
         this.snakeHeadMesh.translateZ(this.moveForward);
         this.snakeHeadMesh.translateX(this.moveSites);

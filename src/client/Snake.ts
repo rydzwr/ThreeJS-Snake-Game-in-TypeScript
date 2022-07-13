@@ -30,20 +30,6 @@ export class Snake {
         world.addBody(this.snakeHead);
     }
 
-    public copyCords() {
-        this.snakeHeadMesh.position.set(
-            this.snakeHead.position.x,
-            this.snakeHead.position.y,
-            this.snakeHead.position.z
-        );
-        this.snakeHeadMesh.quaternion.set(
-            this.snakeHead.quaternion.x,
-            this.snakeHead.quaternion.y,
-            this.snakeHead.quaternion.z,
-            this.snakeHead.quaternion.w
-        );
-    }
-
     public getSnakeHeadMesh() {
         return this.snakeHeadMesh;
     }
