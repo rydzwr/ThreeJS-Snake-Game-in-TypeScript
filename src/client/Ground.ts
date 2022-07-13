@@ -27,6 +27,10 @@ export class Ground {
         world.addBody(groundBody);
     }
 
+    getPhongMaterial() {
+        return this.phongMaterial;
+    }
+
     public static getInstance() {
         if (this.instance === undefined)
             return this.instance = new Ground();

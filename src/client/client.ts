@@ -28,7 +28,7 @@ const camera = new THREE.PerspectiveCamera(
 const chaseCam = new THREE.Object3D();
 chaseCam.position.set(0, 0, 0);
 const chaseCamPivot = new THREE.Object3D();
-chaseCamPivot.position.set(0, 2, 4);
+chaseCamPivot.position.set(0, 8, 7);
 chaseCam.add(chaseCamPivot);
 scene.add(chaseCam);
 
@@ -86,8 +86,6 @@ function animate() {
     CollisionDetector.getInstance().detect();
 
    Food.getInstance().spawnNewFood(scene, world);
-
-    Food.getInstance().animateFood();
 
     delta = Math.min(clock.getDelta(), 0.1);
     world.step(delta);
