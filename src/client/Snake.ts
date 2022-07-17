@@ -6,7 +6,7 @@ export class Snake {
     private static instance: Snake;
     private phongMaterial = new THREE.MeshPhongMaterial();
     private snakeHeadMaterial = new CANNON.Material('snakeHeadMaterial');
-    private snakeHeadGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    private snakeHeadGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.9, 0.7, 1.2);
     private snakeHeadMesh: THREE.Mesh = new THREE.Mesh(this.snakeHeadGeometry, this.phongMaterial);
     private snakeHeadBoundingBox = new THREE.Box3(new Vector3(), new Vector3());
     private snakeHeadShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 1));

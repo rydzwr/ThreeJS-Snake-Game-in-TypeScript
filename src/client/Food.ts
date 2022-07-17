@@ -33,22 +33,20 @@ export class Food {
         this.food.position.z = this.foodMesh.position.z
         this.foodBoundingBox.setFromObject(this.foodMesh)
         world.addBody(this.food)
-        this.foodCount++
-
+        console.log('First Food Spawned')
     }
 
     spawnNewFood(scene: THREE.Scene, world: CANNON.World) {
-        if (this.foodCount === 0) {
-            this.newFoodMesh.position.x = Math.random() * 10
+            this.newFoodMesh.name = 'food'
+            this.newFoodMesh.position.x = Math.random() * 50 - 10
             this.newFoodMesh.position.y = 0.5
-            this.newFoodMesh.position.z = Math.random() * 10
+            this.newFoodMesh.position.z = Math.random() * 50 - 10
             this.newFoodMesh.castShadow = true
             scene.add(this.newFoodMesh)
 
             this.foodBoundingBox.setFromObject(this.newFoodMesh)
             world.addBody(this.food)
-            this.foodCount++
-        }
+            console.log('New Food Spawned')
     }
 
     countFood(scene: THREE.Scene) {

@@ -10,6 +10,7 @@ import { MovingController } from './MovingController'
 import { Ground } from './Ground'
 import { Light } from './Light'
 import { Scene } from './Scene'
+import { World } from './World'
 
 const scene = Scene.getInstance().getScene();
 
@@ -40,7 +41,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-const world = new CANNON.World();
+const world = World.getInstance().getWorld();
 world.gravity.set(0, -9.82, 0);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -77,6 +78,8 @@ let delta;
 
 const v = new THREE.Vector3();
 
+//---------------- FOOD -----------------
+
 Food.getInstance().spawnFirstFood(scene, world);
 Food.getInstance().countFood(scene);
 
@@ -84,8 +87,6 @@ function animate() {
     requestAnimationFrame(animate);
 
     CollisionDetector.getInstance().detect();
-
-   Food.getInstance().spawnNewFood(scene, world);
 
     delta = Math.min(clock.getDelta(), 0.1);
     world.step(delta);

@@ -1,6 +1,7 @@
 import { Food } from './Food'
 import { Snake } from './Snake'
 import { Scene } from './Scene'
+import { World } from './World'
 
 export class CollisionDetector {
     private static instance: CollisionDetector
@@ -8,26 +9,27 @@ export class CollisionDetector {
     private snakeHead = Snake.getInstance()
     private snakeHeadMesh = this.snakeHead.getSnakeHeadMesh()
     private snakeHeadBoundingBox = this.snakeHead.getSnakeHeadBoundingBox()
-    private foodEaten: number = 0
-    private iterator: number = 1;
+    private iterator: number = 0.3;
+    private scene = Scene.getInstance().getScene();
+    private world = World.getInstance().getWorld();
 
     detect() {
         // @ts-ignore
         this.snakeHeadBoundingBox.copy(this.snakeHeadMesh.geometry.boundingBox).applyMatrix4(this.snakeHeadMesh.matrixWorld)
 
         if (this.snakeHead.getSnakeHeadBoundingBox().intersectsBox(this.food.getFoodBoundingBox())) {
-            const foodMesh = this.food.getFoodMesh();
-            foodMesh.position.set(0, 0, 1)
-            this.snakeHead.getSnakeHeadMesh().add(foodMesh)
+
+            this.scene.remove(this.food.getFoodMesh())
+            const snakeTailObject = this.food.getNewFoodMesh().clone();
+            this.snakeHead.getSnakeHeadMesh().add(snakeTailObject)
             this.food.setFoodCount(0)
-            this.foodEaten++
-            console.log(this.foodEaten);
-            if (this.foodEaten >= 2) {
-                this.iterator++;
-                const snakeTailObject = this.food.getNewFoodMesh().clone();
-                snakeTailObject.position.set(0, 0, this.iterator)
-                foodMesh.add(snakeTailObject)
-            }
+
+            this.iterator += 0.5;
+            snakeTailObject.position.set(0, 0, this.iterator)
+            this.snakeHeadMesh.add(snakeTailObject)
+
+            Food.getInstance().spawnNewFood(this.scene, this.world)
+            Food.getInstance().countFood(this.scene)
         }
     }
 
