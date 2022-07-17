@@ -7,14 +7,12 @@ export class MovingController {
     private thrusting = false;
     private steering = false;
     private speeding = false;
-    private jumping = false;
 
     private worldBorder: number = 49.5;
     private negativeWorldBorder: number = -49.5;
 
     private moveForward = 0;
     private moveSites = 0;
-    private jumpForce = 0;
 
     private keyMap: { [id: string]: boolean } = {}
     private onDocumentKey = (e: KeyboardEvent) => {
@@ -28,10 +26,6 @@ export class MovingController {
         this.steering = false;
         this.thrusting = false;
         this.speeding = false;
-        this.jumping = false;
-
-        if (this.snakeHeadMesh.position.y < 0.4)
-            this.jumpForce = 0
 
         if (this.keyMap['s'] || this.keyMap['ArrowUp']) {
             if (this.moveForward < 0.15) this.moveForward += 0.002;
@@ -52,14 +46,6 @@ export class MovingController {
         if (this.keyMap['shift'] || this.keyMap['Shift'] && this.keyMap['w'] || this.keyMap['ArrowDown']) {
             if (this.moveForward < 0.15) this.moveForward -= 0.005;
             this.speeding = true;
-        }
-
-        if (this.keyMap[' '])
-            if (this.jumpForce < 0.15) this.jumpForce += 0.01;
-
-
-        if (this.snakeHeadMesh.position.y >= 1.2 && this.jumpForce > 0) {
-            this.jumpForce -= 0.07
         }
 
         if (!this.speeding) {
@@ -100,7 +86,6 @@ export class MovingController {
         if (this.snakeHeadMesh.position.y <= 0.5)
             this.snakeHeadMesh.position.y = 0.5;
 
-        this.snakeHeadMesh.translateY(this.jumpForce);
         this.snakeHeadMesh.translateZ(this.moveForward);
         this.snakeHeadMesh.translateX(this.moveSites);
     }

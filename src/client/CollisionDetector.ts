@@ -9,7 +9,7 @@ export class CollisionDetector {
     private snakeHead = Snake.getInstance()
     private snakeHeadMesh = this.snakeHead.getSnakeHeadMesh()
     private snakeHeadBoundingBox = this.snakeHead.getSnakeHeadBoundingBox()
-    private iterator: number = 0.3;
+
     private scene = Scene.getInstance().getScene();
     private world = World.getInstance().getWorld();
 
@@ -20,14 +20,8 @@ export class CollisionDetector {
         if (this.snakeHead.getSnakeHeadBoundingBox().intersectsBox(this.food.getFoodBoundingBox())) {
 
             this.scene.remove(this.food.getFoodMesh())
-            const snakeTailObject = this.food.getNewFoodMesh().clone();
-            this.snakeHead.getSnakeHeadMesh().add(snakeTailObject)
+            Snake.getInstance().buildTail(1)
             this.food.setFoodCount(0)
-
-            this.iterator += 0.5;
-            snakeTailObject.position.set(0, 0, this.iterator)
-            this.snakeHeadMesh.add(snakeTailObject)
-
             Food.getInstance().spawnNewFood(this.scene, this.world)
             Food.getInstance().countFood(this.scene)
         }
