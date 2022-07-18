@@ -83,9 +83,6 @@ export class MovingController {
         if (this.snakeHeadMesh.position.z <= this.negativeWorldBorder)
             this.snakeHeadMesh.position.z = this.negativeWorldBorder;
 
-        if (this.snakeHeadMesh.position.y <= 0.5)
-            this.snakeHeadMesh.position.y = 0.5;
-
         this.snakeHeadMesh.translateZ(this.moveForward);
         this.snakeHeadMesh.translateX(this.moveSites);
     }

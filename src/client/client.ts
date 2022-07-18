@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
-import { GUI } from 'dat.gui'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Food } from './Food'
 import { CollisionDetector } from './CollisionDetector'
@@ -9,7 +8,6 @@ import { MovingController } from './MovingController'
 import { Ground } from './Ground'
 import { Light } from './Light'
 import { Scene } from './Scene'
-import { World } from './World'
 
 const scene = Scene.getInstance().getScene();
 
@@ -25,12 +23,18 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000,
 );
-const chaseCam = new THREE.Object3D();
-chaseCam.position.set(0, 0, 0);
-const chaseCamPivot = new THREE.Object3D();
-chaseCamPivot.position.set(0, 8, 7);
-chaseCam.add(chaseCamPivot);
-scene.add(chaseCam);
+camera.position.set(0, 8, 7);
+
+// ------------------------ TEMPORARY STRONG LIGHT ------------------------
+//const light = new THREE. AmbientLight(0xffffff, 1);
+//scene.add(light);
+
+//const chaseCam = new THREE.Object3D();
+//chaseCam.position.set(0, 0, 0);
+//const chaseCamPivot = new THREE.Object3D();
+//chaseCamPivot.position.set(0, 8, 7);
+//chaseCam.add(chaseCamPivot);
+//scene.add(chaseCam);
 
 // ------------------------ RENDERER ------------------------
 
@@ -40,17 +44,13 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-const world = World.getInstance().getWorld();
-world.gravity.set(0, -9.82, 0);
-
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.addEventListener('change', render);
 
-Ground.getInstance().buildGround(scene, world);
+Ground.getInstance().buildGround(scene);
 
-Snake.getInstance().buildSnakeHead(scene, chaseCam, world);
+Snake.getInstance().buildSnakeHead(scene /*, chaseCam */);
 const snakeHeadMesh = Snake.getInstance().getSnakeHeadMesh();
-
 
 window.addEventListener('resize', onWindowResize, false);
 
@@ -64,22 +64,11 @@ function onWindowResize() {
 const stats = Stats();
 document.body.appendChild(stats.dom);
 
-
-const gui = new GUI();
-const physicsFolder = gui.addFolder('Physics');
-physicsFolder.add(world.gravity, 'x', -10.0, 10.0, 0.1);
-physicsFolder.add(world.gravity, 'y', -10.0, 10.0, 0.1);
-physicsFolder.add(world.gravity, 'z', -10.0, 10.0, 0.1);
-physicsFolder.open();
-
-const clock = new THREE.Clock();
-let delta;
-
 const v = new THREE.Vector3();
 
 //---------------- FOOD -----------------
 
-Food.getInstance().spawnFirstFood(scene, world);
+Food.getInstance().spawnFirstFood(scene);
 Food.getInstance().countFood(scene);
 
 function animate() {
@@ -87,18 +76,18 @@ function animate() {
 
     CollisionDetector.getInstance().detect();
 
-    delta = Math.min(clock.getDelta(), 0.1);
-    world.step(delta);
-
     MovingController.getInstance().moveSnakeHead();
 
     camera.lookAt(snakeHeadMesh.position);
 
+    /*
     chaseCamPivot.getWorldPosition(v);
     if (v.y < 1) {
         v.y = 1
     }
     camera.position.lerpVectors(camera.position, v, 0.05);
+
+     */
 
     render();
 
