@@ -80,6 +80,8 @@ function animate() {
 
     camera.lookAt(snakeHeadMesh.position);
 
+    Food.getInstance().animateFood();
+
     /*
     chaseCamPivot.getWorldPosition(v);
     if (v.y < 1) {

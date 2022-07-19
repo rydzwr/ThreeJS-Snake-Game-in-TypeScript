@@ -22,6 +22,17 @@ export class CollisionDetector {
             this.food.setFoodCount(0)
             Food.getInstance().spawnNewFood(this.scene)
             Food.getInstance().countFood(this.scene)
+            console.log('INTERSECTION!!!')
+        }
+
+        if (this.snakeHead.getSnakeHeadBoundingBox().intersectsBox(this.food.getFoodBoundingBox())) {
+
+            this.scene.remove(this.food.getFoodMesh())
+            Snake.getInstance().buildTail(1)
+            this.food.setFoodCount(0)
+            Food.getInstance().spawnNewFood(this.scene)
+            Food.getInstance().countFood(this.scene)
+            console.log('INTERSECTION!!!')
         }
     }
 

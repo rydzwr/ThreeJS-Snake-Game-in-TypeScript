@@ -33,6 +33,11 @@ export class Snake {
     private eyeMesh: THREE.Mesh = new THREE.Mesh(this.eyeGeometry, this.eyeMaterial);
     private eyeMesh2 = this.eyeMesh.clone();
 
+    // ------------------------ SNAKE TAIL OBJECT ------------------------
+    private tailObjMaterial = new THREE.MeshPhongMaterial({color: 0x307016});
+    private tailObjGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+    private tailObjMesh: THREE.Mesh = new THREE.Mesh(this.tailObjGeometry, this.tailObjMaterial)
+
     private food = Food.getInstance()
 
     private iterator: number = 0.35
@@ -73,12 +78,10 @@ export class Snake {
 
     buildTail(length: number) {
         for (let i = 0; i < length; i++) {
-            const snakeTailObject = this.food.getNewFoodMesh().clone();
-            this.snakeHeadMesh.add(snakeTailObject)
-
+            const snakeTailObj = this.tailObjMesh.clone();
             this.iterator += 0.55;
-            snakeTailObject.position.set(0, 0, this.iterator)
-            this.snakeHeadMesh.add(snakeTailObject)
+            snakeTailObj.position.set(0, 0, this.iterator)
+            this.snakeHeadMesh.add(snakeTailObj)
         }
     }
 
