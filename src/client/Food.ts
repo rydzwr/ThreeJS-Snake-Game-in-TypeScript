@@ -1,9 +1,18 @@
-import * as THREE from 'three'
-import { Box3, BoxGeometry, Mesh, MeshPhongMaterial, Object3D, Vector3 } from 'three'
+import {
+    AmbientLight,
+    Box3,
+    BoxGeometry,
+    HemisphereLight,
+    Light,
+    Mesh,
+    MeshPhongMaterial,
+    Object3D, SpotLight,
+    Vector3,
+} from 'three'
 import { GameObjectLifecycle } from './GameObjectLifecycle'
 
 export class Food extends Object3D implements GameObjectLifecycle {
-    private static readonly foodRotationSpeed = 2 * Math.PI;
+    private static readonly foodRotationSpeed = 0.5 * Math.PI;
 
     public hasLifecycle = 1;
 

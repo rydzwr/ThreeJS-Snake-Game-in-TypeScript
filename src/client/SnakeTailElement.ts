@@ -27,15 +27,15 @@ export class SnakeTailElement extends Object3D implements GameObjectLifecycle {
 
     public update(deltaTime: number): void {
         if (this.target) {
-            this.lookAt(this.target.position);
+            //this.lookAt(this.target.position);
 
             const forward = new Vector3(0,0,0);
             this.getWorldDirection(forward);
 
-            const targetPos = this.target.position.clone().add(new Vector3(0,0, this.distance));
-          //  targetPos.add(forward.multiplyScalar(this.distance));
+            const targetPos = this.target.position.clone()
+            //targetPos.add(forward.multiplyScalar(this.distance));
 
-            this.position.set(targetPos.x, targetPos.y, targetPos.z);
+            this.position.set(targetPos.x, 0.5, targetPos.z + this.distance);
         }
     }
 }

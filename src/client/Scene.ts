@@ -25,14 +25,10 @@ export class MyScene implements GameObjectLifecycle {
 
         const snake = new Snake();
         this.scene.add(snake);
-        this.scene.add(new Food(new Vector3(5, 0, 5)));
+        this.scene.add(new Food(new Vector3(5, 0.5, 5)));
 
         camera.position.set(0, 8, 7);
         camera.Target = snake;
-
-        //this.mesh.position.x = Math.random() * 10
-        //this.mesh.position.y = 0.5
-        //this.mesh.position.z = Math.random() * 10
     }
 
     public postInit(): void {
