@@ -29,29 +29,7 @@ function initialize(): boolean {
     const controls = new OrbitControls(MyScene.getInstance().ActiveCamera, renderer.domElement)
     controls.addEventListener('change', render)
     window.addEventListener('resize', onWindowResize, false)
-
     return true
-}
-
-document.body.addEventListener('wheel', checkScrollDirection)
-
-function checkScrollDirection(event: any) {
-    if (checkScrollDirectionIsUp(event)) {
-        if (MyScene.getInstance().ActiveCamera.position.y >= -5) {
-            MyScene.getInstance().ActiveCamera.position.y -= 0.2
-        } else MyScene.getInstance().ActiveCamera.position.y = -5
-    } else {
-        if (MyScene.getInstance().ActiveCamera.position.y <= 5) {
-            MyScene.getInstance().ActiveCamera.position.y += 0.2
-        } else MyScene.getInstance().ActiveCamera.position.y = 5
-    }
-}
-
-function checkScrollDirectionIsUp(event: any) {
-    if (event.wheelDelta) {
-        return event.wheelDelta > 0
-    }
-    return event.deltaY < 0
 }
 
 function onWindowResize() {
