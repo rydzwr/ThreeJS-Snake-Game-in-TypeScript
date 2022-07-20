@@ -43,7 +43,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     constructor() {
         super()
         this.name = 'snake'
-        this.add(new AxesHelper(2))
+        //this.add(new AxesHelper(2))
     }
 
     buildSnakeHead() {
@@ -147,7 +147,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
         }
 
         if (input.getKeyDown('Shift') && input.getKeyDown('w')) {
-            this.translateZ(-sprintSpeed * deltaTime)
+            this.translateZ(sprintSpeed * deltaTime)
         }
 
         if (this.position.x >= this.worldBorder)

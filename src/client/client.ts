@@ -26,8 +26,6 @@ function initialize(): boolean {
     if (!MyScene.getInstance().ActiveCamera)
         return false
 
-    const controls = new OrbitControls(MyScene.getInstance().ActiveCamera, renderer.domElement)
-    controls.addEventListener('change', render)
     window.addEventListener('resize', onWindowResize, false)
     return true
 }

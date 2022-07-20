@@ -15,11 +15,6 @@ export class MyScene implements GameObjectLifecycle {
     private activeCamera: PerspectiveCamera;
 
     constructor() {
-        // Add all of our game objects here
-        const camera = new MyCamera();
-        this.scene.add(camera);
-        this.activeCamera = camera.Camera;
-
         this.scene.add(new MyCustomLight());
         this.scene.add(new Ground());
 
@@ -27,7 +22,11 @@ export class MyScene implements GameObjectLifecycle {
         this.scene.add(snake);
         this.scene.add(new Food(new Vector3(5, 0.5, 5)));
 
-        camera.position.set(0, 8, 7);
+        const camera = new MyCamera();
+        this.scene.add(camera);
+        this.activeCamera = camera;
+        camera.position.set(6, 8, -8);
+        camera.Offset = new Vector3(6, 8, -8);
         camera.Target = snake;
     }
 

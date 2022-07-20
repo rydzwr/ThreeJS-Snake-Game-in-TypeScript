@@ -16,7 +16,7 @@ export class Ground extends Object3D implements GameObjectLifecycle {
 
         groundMesh.rotateX(-Math.PI / 2);
         groundMesh.receiveShadow = true;
-        this.add(grid)
+       // this.add(grid)
         this.add(groundMesh);
     }
 
