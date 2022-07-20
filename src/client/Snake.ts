@@ -73,18 +73,20 @@ export class Snake extends Object3D implements GameObjectLifecycle {
         this.foreheadMesh.add(this.eyeMesh2)
         this.eyeMesh2.position.set(-0.2, 0.23, -0.3)
 
-        this.buildTail(4)
+        this.buildTail(10)
     }
 
     buildTail(length: number) {
         const scene = MyScene.getInstance().Scene
+        let smoothTime = 0.3;
         let prev: Object3D = this
         for (let i = 0; i < length; i++) {
-            const el = new SnakeTailElement(prev, 0.65)
+            const el = new SnakeTailElement(prev, (i == 0) ? 1 : 0.65, smoothTime)
             const pos = this.snakeHeadMesh.position
-            el.position.set(pos.x, pos.y, pos.z + i  * 0.65 + 1.2);
+            el.position.set(pos.x, 0.35, -(pos.z + i  * 0.65 + 1));
             scene.add(el)
             prev = el
+            smoothTime = Math.max(smoothTime - 0.02, 0.1);
         }
     }
 
@@ -110,35 +112,42 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
     public postInit(): void {
         this.buildSnakeHead()
+        this.snakeHeadMesh.rotateY(Math.PI);
     }
 
     public update(deltaTime: number): void {
         const input = InputManager.getInstance()
         const scene = MyScene.getInstance().Scene
 
-        const speed = 5
+        const speed = 2
+        const sprintSpeed = 5
         const rotationSpeed = 1.5
 
         let isMoving = false
 
-        if (input.getKeyDown('w') || input.getKeyDown('ArrowUp')) {
-            this.translateZ(-speed * deltaTime)
-            isMoving = true
-        }
+        // ---------------- TO DO -----------------
+        // Steering left/right can stuck when speeding with shift
 
-        if (input.getKeyDown('s') || input.getKeyDown('ArrowDown')) {
+        if (input.getKeyDown('w') || input.getKeyDown('ArrowUp')) {
             this.translateZ(speed * deltaTime)
             isMoving = true
         }
 
-        if (isMoving && (input.getKeyDown('d') || input.getKeyDown('ArrowRight')))
-            this.rotateY(-rotationSpeed * deltaTime)
+        if (input.getKeyDown('s') || input.getKeyDown('ArrowDown')) {
+            this.translateZ(-speed * deltaTime)
+            isMoving = true
+        }
 
-        if (isMoving && (input.getKeyDown('a') || input.getKeyDown('ArrowLeft')))
+        if (isMoving && (input.getKeyDown('d') || input.getKeyDown('ArrowRight'))) {
+            this.rotateY(-rotationSpeed * deltaTime)
+        }
+
+        if (isMoving && (input.getKeyDown('a') || input.getKeyDown('ArrowLeft'))) {
             this.rotateY(rotationSpeed * deltaTime)
+        }
 
         if (input.getKeyDown('Shift') && input.getKeyDown('w')) {
-            this.translateZ(-speed * deltaTime)
+            this.translateZ(-sprintSpeed * deltaTime)
         }
 
         if (this.position.x >= this.worldBorder)

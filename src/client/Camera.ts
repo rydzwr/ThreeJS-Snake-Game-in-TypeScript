@@ -33,6 +33,7 @@ export class MyCamera extends Object3D implements GameObjectLifecycle {
         this.target = val
     }
 
+    /*
     public checkScrollDirection(): number {
         let cameraYMove = 0
         window.addEventListener('wheel', function(event) {
@@ -54,19 +55,21 @@ export class MyCamera extends Object3D implements GameObjectLifecycle {
         return cameraYMove
     }
 
+     */
+
     public postInit(): void {
 
     }
 
     public update(deltaTime: number): void {
-        const cameraYMove = this.checkScrollDirection()
+        //const cameraYMove = this.checkScrollDirection()
         if (this.target) {
             this.camera.lookAt(this.target.position)
 
             //this.camera.position.set(this.target.position.x, 0, this.target.position.z)
             this.camera.position.x = this.target.position.x
             this.camera.position.z = this.target.position.z
-            this.camera.position.y += cameraYMove
+            //this.camera.position.y += cameraYMove
         }
     }
 }
