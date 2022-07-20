@@ -1,24 +1,28 @@
 import * as THREE from 'three'
+import { GridHelper, Object3D } from 'three'
+import { GameObjectLifecycle } from './GameObjectLifecycle'
 
-export class Ground {
-    private static instance: Ground;
-    private phongMaterial = new THREE.MeshPhongMaterial({color: 0x8f4d21});
-    //private grid = new THREE.GridHelper(100,100);
-    private groundGeometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(100, 100);
-    private groundMesh: THREE.Mesh = new THREE.Mesh(this.groundGeometry, this.phongMaterial);
+export class Ground extends Object3D implements GameObjectLifecycle {
+    public hasLifecycle = 1;
 
-    buildGround(scene: THREE.Scene) {
-        //scene.add(this.grid);
-        this.groundMesh.rotateX(-Math.PI / 2);
-        this.groundMesh.receiveShadow = true;
-        //this.grid.rotateX(Math.PI / 2);
-        //this.groundMesh.add(this.grid);
-        scene.add(this.groundMesh);
+    constructor() {
+        super()
+        this.name = "ground";
+
+        const phongMaterial = new THREE.MeshPhongMaterial({color: 0x8f4d21})
+        const groundGeometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundMesh: THREE.Mesh = new THREE.Mesh(groundGeometry, phongMaterial);
+        const grid: THREE.GridHelper = new GridHelper(100, 100)
+
+        groundMesh.rotateX(-Math.PI / 2);
+        groundMesh.receiveShadow = true;
+        this.add(grid)
+        this.add(groundMesh);
     }
 
-    public static getInstance() {
-        if (this.instance === undefined)
-            return this.instance = new Ground();
-        else return this.instance;
+    public postInit(): void {
+    }
+
+    public update(deltaTime: number): void {
     }
 }

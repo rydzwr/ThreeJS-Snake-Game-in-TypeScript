@@ -1,9 +1,13 @@
 import * as THREE from 'three'
-import { Vector3 } from 'three'
+import { AxesHelper, Object3D, Vector3 } from 'three'
 import { Food } from './Food'
+import { GameObjectLifecycle } from './GameObjectLifecycle'
+import { InputManager } from './Input'
+import { MyScene } from './Scene'
+import { SnakeTailElement } from './SnakeTailElement'
 
-export class Snake {
-    private static instance: Snake;
+export class Snake extends Object3D implements GameObjectLifecycle {
+    public hasLifecycle = 1;
 
     // ------------------------ MAIN SHAPE ------------------------
     private skullMaterial = new THREE.MeshPhongMaterial({color: 0x307016});
@@ -38,17 +42,28 @@ export class Snake {
     private tailObjGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
     private tailObjMesh: THREE.Mesh = new THREE.Mesh(this.tailObjGeometry, this.tailObjMaterial)
 
-    private food = Food.getInstance()
-
     private iterator: number = 0.35
 
-    buildSnakeHead(scene: THREE.Scene /*, chaseCam: THREE.Object3D */) {
+    private thrusting = false;
+    private steering = false;
+    private speeding = false;
 
-        this.snakeHeadBoundingBox.setFromObject(this.snakeHeadMesh);
+    private worldBorder: number = 49.5;
+    private negativeWorldBorder: number = -49.5;
 
+    private moveForward = 0;
+    private moveSites = 0;
+
+    constructor() {
+        super()
+        this.name = "snake";
+        this.add(new AxesHelper(2));
+    }
+
+    buildSnakeHead() {
         this.snakeHeadMesh.position.y = 0.35;
         this.snakeHeadMesh.castShadow = true;
-        scene.add(this.snakeHeadMesh);
+        this.add(this.snakeHeadMesh);
         //this.snakeHeadMesh.add(chaseCam);
 
         //forehead
@@ -73,29 +88,79 @@ export class Snake {
         this.foreheadMesh.add(this.eyeMesh2)
         this.eyeMesh2.position.set(-0.2,0.23,-0.3)
 
-        this.buildTail(2)
+        this.buildTail(4)
     }
 
     buildTail(length: number) {
+        const scene = MyScene.getInstance().Scene;
+        let prev: Object3D = this;
         for (let i = 0; i < length; i++) {
+            const el = new SnakeTailElement(prev, 0.65);
+            const pos = this.snakeHeadMesh.position;
+            el.position.set(pos.x, pos.y, pos.z + i  * 0.65 + 1.2);
+            scene.add(el);
+            prev = el;
+        }
+
+        /*for (let i = 0; i < length; i++) {
             const snakeTailObj = this.tailObjMesh.clone();
             this.iterator += 0.55;
             snakeTailObj.position.set(0, 0, this.iterator)
             this.snakeHeadMesh.add(snakeTailObj)
-        }
-    }
-
-    public getSnakeHeadMesh() {
-        return this.snakeHeadMesh;
+        }*/
     }
 
     public getSnakeHeadBoundingBox() {
         return this.snakeHeadBoundingBox;
     }
 
-    public static getInstance() {
-        if (this.instance === undefined)
-            return this.instance = new Snake();
-        else return this.instance;
+    public postInit(): void {
+        this.buildSnakeHead();
+    }
+
+    public update(deltaTime: number): void {
+        const input = InputManager.getInstance();
+        const scene = MyScene.getInstance().Scene;
+
+        const speed = 2;
+        const rotationSpeed = 1.5;
+
+        let isMoving = false;
+
+        if (input.getKeyDown('w') || input.getKeyDown('ArrowUp')) {
+            this.translateZ(-speed * deltaTime);
+            isMoving = true;
+        }
+
+        if (input.getKeyDown('s') || input.getKeyDown('ArrowDown')) {
+            this.translateZ(speed * deltaTime);
+            isMoving = true;
+        }
+
+        if (isMoving && (input.getKeyDown('d') || input.getKeyDown('ArrowRight')))
+            this.rotateY(-rotationSpeed * deltaTime);
+
+        if (isMoving && (input.getKeyDown('a') || input.getKeyDown('ArrowLeft')))
+            this.rotateY(rotationSpeed * deltaTime);
+
+        if (this.snakeHeadMesh.position.x >= this.worldBorder)
+            this.snakeHeadMesh.position.x = this.worldBorder;
+        if (this.snakeHeadMesh.position.x <= this.negativeWorldBorder)
+            this.snakeHeadMesh.position.x = this.negativeWorldBorder;
+
+        if (this.snakeHeadMesh.position.z >= this.worldBorder)
+            this.snakeHeadMesh.position.z = this.worldBorder;
+        if (this.snakeHeadMesh.position.z <= this.negativeWorldBorder)
+            this.snakeHeadMesh.position.z = this.negativeWorldBorder;
+
+        this.snakeHeadBoundingBox.setFromObject(this.snakeHeadMesh);
+
+        const food = scene.getObjectByName("food") as Food;
+        if (this.snakeHeadBoundingBox.intersectsBox(food.getFoodBoundingBox())) {
+
+            scene.remove(food);
+            this.buildTail(1)
+            scene.add(new Food(new Vector3(10, 0, 10)));
+        }
     }
 }
