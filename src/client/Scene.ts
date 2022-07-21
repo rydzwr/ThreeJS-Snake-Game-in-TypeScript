@@ -26,7 +26,7 @@ export class MyScene implements GameObjectLifecycle {
         this.scene.add(camera);
         this.activeCamera = camera;
         camera.position.set(6, 8, -8);
-        camera.Offset = new Vector3(6, 8, -8);
+        camera.Offset = new Vector3(10, 10, -10);
         camera.Target = snake;
     }
 

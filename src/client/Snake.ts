@@ -37,9 +37,6 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     private eyeMesh: THREE.Mesh = new THREE.Mesh(this.eyeGeometry, this.eyeMaterial)
     private eyeMesh2 = this.eyeMesh.clone()
 
-    private worldBorder: number = 49.5
-    private negativeWorldBorder: number = -49.5
-
     constructor() {
         super()
         this.name = 'snake'
@@ -48,6 +45,8 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
     buildSnakeHead() {
         this.position.y = 0.35
+        this.snakeHeadMesh.position.set(this.position.x, this.position.y, this.position.z)
+        this.position.set(40,0.35,-40)
         this.castShadow = true
         this.add(this.snakeHeadMesh)
 
@@ -82,8 +81,8 @@ export class Snake extends Object3D implements GameObjectLifecycle {
         let prev: Object3D = this
         for (let i = 0; i < length; i++) {
             const el = new SnakeTailElement(prev, (i == 0) ? 1 : 0.65, smoothTime)
-            const pos = this.snakeHeadMesh.position
-            el.position.set(pos.x, 0.35, -(pos.z + i  * 0.65 + 1));
+            const pos = this.position
+            el.position.set(pos.x, 0.35, (pos.z + i  * 0.65 + 1));
             scene.add(el)
             prev = el
             smoothTime = Math.max(smoothTime - 0.02, 0.1);
@@ -101,7 +100,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
         const last = elements[elements.length - 1]
         const el = new SnakeTailElement(last, 0.65)
-        const pos = this.snakeHeadMesh.position
+        const pos = this.position
         el.position.set(pos.x, pos.y, pos.z)
         scene.add(el)
     }
@@ -116,6 +115,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     }
 
     public update(deltaTime: number): void {
+
         const input = InputManager.getInstance()
         const scene = MyScene.getInstance().Scene
 
@@ -149,16 +149,6 @@ export class Snake extends Object3D implements GameObjectLifecycle {
         if (input.getKeyDown('Shift') && input.getKeyDown('w')) {
             this.translateZ(sprintSpeed * deltaTime)
         }
-
-        if (this.position.x >= this.worldBorder)
-            this.position.x = this.worldBorder
-        if (this.position.x <= this.negativeWorldBorder)
-            this.position.x = this.negativeWorldBorder
-
-        if (this.position.z >= this.worldBorder)
-            this.position.z = this.worldBorder
-        if (this.position.z <= this.negativeWorldBorder)
-            this.position.z = this.negativeWorldBorder
 
         this.snakeHeadBoundingBox.setFromObject(this.snakeHeadMesh)
 

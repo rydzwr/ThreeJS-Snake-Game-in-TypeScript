@@ -12,7 +12,7 @@ export class MyCamera extends PerspectiveCamera implements GameObjectLifecycle {
     private originalOffset = this.offset;
     private velocityRef = new Vector3(0,0,0);
     private smoothTime = 0.1;
-    private maxSpeed = 10;
+    private maxSpeed = 7;
     private zoomSpeed = 0.02;
     private isScrolling: any;
 
