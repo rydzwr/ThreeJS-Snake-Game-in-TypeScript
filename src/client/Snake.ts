@@ -5,6 +5,7 @@ import { GameObjectLifecycle } from './GameObjectLifecycle'
 import { InputManager } from './Input'
 import { MyScene } from './Scene'
 import { SnakeTailElement } from './SnakeTailElement'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 export class Snake extends Object3D implements GameObjectLifecycle {
     public hasLifecycle = 1
@@ -37,13 +38,28 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     private eyeMesh: THREE.Mesh = new THREE.Mesh(this.eyeGeometry, this.eyeMaterial)
     private eyeMesh2 = this.eyeMesh.clone()
 
+    private blenderSnakeHeadMesh: any;
+
     constructor() {
         super()
         this.name = 'snake'
         //this.add(new AxesHelper(2))
     }
 
+    blenderSnakeHead() {
+        const loader = new GLTFLoader()
+        const url = '/resources/snake_head.gltf'
+        const scene = MyScene.getInstance().Scene
+        loader.load(url, (gltf) => {
+            this.blenderSnakeHeadMesh = gltf.scene;
+            scene.add(this.blenderSnakeHeadMesh)
+        })
+    }
+
     buildSnakeHead() {
+
+        this.blenderSnakeHead()
+
         this.position.y = 0.35
         this.snakeHeadMesh.position.set(this.position.x, this.position.y, this.position.z)
         this.position.set(40,0.35,-40)
