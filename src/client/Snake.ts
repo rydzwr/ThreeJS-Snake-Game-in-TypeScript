@@ -1,11 +1,13 @@
 import * as THREE from 'three'
-import { AxesHelper, Object3D, Vector3 } from 'three'
+import { AxesHelper, Camera, Mesh, Object3D, Vector3 } from 'three'
 import { Food } from './Food'
 import { GameObjectLifecycle } from './GameObjectLifecycle'
 import { InputManager } from './Input'
 import { MyScene } from './Scene'
 import { SnakeTailElement } from './SnakeTailElement'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { FoodSpawner } from './FoodSpawner'
+import { FoodManager } from './FoodManager'
 
 export class Snake extends Object3D implements GameObjectLifecycle {
     public hasLifecycle = 1
@@ -38,7 +40,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     private eyeMesh: THREE.Mesh = new THREE.Mesh(this.eyeGeometry, this.eyeMaterial)
     private eyeMesh2 = this.eyeMesh.clone()
 
-    private blenderSnakeHeadMesh: any;
+    private blenderSnakeHeadMesh: any
 
     constructor() {
         super()
@@ -47,22 +49,42 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     }
 
     blenderSnakeHead() {
-        const loader = new GLTFLoader()
-        const url = '/resources/snake_head.gltf'
         const scene = MyScene.getInstance().Scene
-        loader.load(url, (gltf) => {
-            this.blenderSnakeHeadMesh = gltf.scene;
-            scene.add(this.blenderSnakeHeadMesh)
-        })
+        const loader = new GLTFLoader()
+        loader.load(
+            '/resources/snake_head.gltf',
+            function (gltf) {
+                // gltf.scene.traverse(function (child) {
+                //     if ((child as THREE.Mesh).isMesh) {
+                //         const m = (child as THREE.Mesh)
+                //         m.receiveShadow = true
+                //         m.castShadow = true
+                //     }
+                //     if (((child as THREE.Light)).isLight) {
+                //         const l = (child as THREE.Light)
+                //         l.castShadow = true
+                //         l.shadow.bias = -.003
+                //         l.shadow.mapSize.width = 2048
+                //         l.shadow.mapSize.height = 2048
+                //     }
+                // })
+                scene.add(gltf.scene)
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+            },
+            (error) => {
+                console.log(error)
+            }
+        )
     }
 
     buildSnakeHead() {
-
         this.blenderSnakeHead()
 
         this.position.y = 0.35
         this.snakeHeadMesh.position.set(this.position.x, this.position.y, this.position.z)
-        this.position.set(40,0.35,-40)
+        this.position.set(40, 0.35, -40)
         this.castShadow = true
         this.add(this.snakeHeadMesh)
 
@@ -93,15 +115,15 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
     buildTail(length: number) {
         const scene = MyScene.getInstance().Scene
-        let smoothTime = 0.3;
+        let smoothTime = 0.3
         let prev: Object3D = this
         for (let i = 0; i < length; i++) {
-            const el = new SnakeTailElement(prev, (i == 0) ? 1 : 0.65, smoothTime)
+            const el = new SnakeTailElement(prev, i == 0 ? 1 : 0.65, smoothTime)
             const pos = this.position
-            el.position.set(pos.x, 0.35, (pos.z + i  * 0.65 + 1));
+            el.position.set(pos.x, 0.35, pos.z + i * 0.65 + 1)
             scene.add(el)
             prev = el
-            smoothTime = Math.max(smoothTime - 0.02, 0.1);
+            smoothTime = Math.max(smoothTime - 0.02, 0.1)
         }
     }
 
@@ -127,11 +149,10 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
     public postInit(): void {
         this.buildSnakeHead()
-        this.snakeHeadMesh.rotateY(Math.PI);
+        this.snakeHeadMesh.rotateY(Math.PI)
     }
 
     public update(deltaTime: number): void {
-
         const input = InputManager.getInstance()
         const scene = MyScene.getInstance().Scene
 
@@ -168,17 +189,23 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
         this.snakeHeadBoundingBox.setFromObject(this.snakeHeadMesh)
 
-        const food = scene.getObjectByName('food') as Food
-        if (this.snakeHeadBoundingBox.intersectsBox(food.getFoodBoundingBox())) {
-
-            const min = Math.ceil(5)
-            const max = Math.floor(30)
-            const randomX = Math.floor(Math.random() * (max - min + 1)) + min
-            const randomZ = Math.floor(Math.random() * (max - min + 1)) + min
-
-            scene.remove(food)
-            this.addSnakeElement()
-            scene.add(new Food(new Vector3(randomX, 0.5, randomZ)))
+        const foodSpawner = scene.getObjectByName('foodSpawner') as FoodSpawner
+        if (this.snakeHeadBoundingBox.intersectsBox(foodSpawner.getfoodSpawnerBoundingBox())) {
+            this.translateZ(-speed * deltaTime)
         }
+
+        const foodArray = FoodManager.getInstance().getFoodArray();
+
+        for (let i = 0; i < foodArray.length; i++) {
+            const food = foodArray[i] as Food
+            if (this.snakeHeadBoundingBox.intersectsBox(food.getFoodBoundingBox())) {
+                console.log('intersection!')
+                scene.remove(food);
+                food.removeFoodFromScene()
+                this.addSnakeElement()
+                FoodManager.getInstance().addFood();
+            }  
+        }
+        
     }
 }

@@ -6,6 +6,8 @@ import { Ground } from './Ground'
 import { Food } from './Food'
 import { MyCamera } from './Camera'
 import { Snake } from './Snake'
+import { FoodSpawner } from './FoodSpawner'
+import { FoodManager } from './FoodManager'
 
 export class MyScene implements GameObjectLifecycle {
     public hasLifecycle = 1;
@@ -18,9 +20,9 @@ export class MyScene implements GameObjectLifecycle {
         this.scene.add(new MyCustomLight());
         this.scene.add(new Ground());
 
-        const snake = new Snake();
+        const snake = new Snake()
         this.scene.add(snake);
-        this.scene.add(new Food(new Vector3(5, 0.5, 5)));
+        this.scene.add(new FoodSpawner(new Vector3(0, 0.5, 0)));
 
         const camera = new MyCamera();
         this.scene.add(camera);
@@ -35,6 +37,7 @@ export class MyScene implements GameObjectLifecycle {
             if ('hasLifecycle' in obj)
                 (<unknown>obj as GameObjectLifecycle).postInit();
         });
+        FoodManager.getInstance().spawnStartingFood();
     }
 
     public update(deltaTime: number): void {
@@ -42,6 +45,7 @@ export class MyScene implements GameObjectLifecycle {
             if ('hasLifecycle' in obj)
                 (<unknown>obj as GameObjectLifecycle).update(deltaTime);
         });
+        FoodManager.getInstance().countFoodOnScene();
     }
 
     public get Scene(): Scene
