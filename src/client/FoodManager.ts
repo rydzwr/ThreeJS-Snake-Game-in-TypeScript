@@ -39,7 +39,7 @@ export class FoodManager {
         this.scene.traverse((obj) => {
             if (obj instanceof Food) counter++
         })
-        console.log(counter)
+        //console.log(counter)
     }
 
     public addToFoodArray(food: Food) {

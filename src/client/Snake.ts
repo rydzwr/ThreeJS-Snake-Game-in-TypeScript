@@ -8,6 +8,7 @@ import { SnakeTailElement } from './SnakeTailElement'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { FoodSpawner } from './FoodSpawner'
 import { FoodManager } from './FoodManager'
+import { MyCamera } from './Camera'
 
 export class Snake extends Object3D implements GameObjectLifecycle {
     public hasLifecycle = 1
@@ -41,6 +42,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     private eyeMesh2 = this.eyeMesh.clone()
 
     private blenderSnakeHeadMesh: any
+    private wasMoving = false;
 
     constructor() {
         super()
@@ -82,12 +84,6 @@ export class Snake extends Object3D implements GameObjectLifecycle {
     buildSnakeHead() {
         this.blenderSnakeHead()
 
-        this.position.y = 0.35
-        this.snakeHeadMesh.position.set(this.position.x, this.position.y, this.position.z)
-        this.position.set(40, 0.35, -40)
-        this.castShadow = true
-        this.add(this.snakeHeadMesh)
-
         //forehead
         this.snakeHeadMesh.add(this.foreheadMesh)
         this.foreheadMesh.position.set(0, 0.45, 0.15)
@@ -109,6 +105,12 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
         this.foreheadMesh.add(this.eyeMesh2)
         this.eyeMesh2.position.set(-0.2, 0.23, -0.3)
+        
+        this.snakeHeadMesh.position.set(0, 0, 0)
+        this.castShadow = true
+        this.add(this.snakeHeadMesh)
+
+        this.position.set(40, 0.35, -40)
 
         this.buildTail(10)
     }
@@ -120,7 +122,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
         for (let i = 0; i < length; i++) {
             const el = new SnakeTailElement(prev, i == 0 ? 1 : 0.65, smoothTime)
             const pos = this.position
-            el.position.set(pos.x, 0.35, pos.z + i * 0.65 + 1)
+            el.position.set(pos.x, pos.y, pos.z - i * 0.65 - 1)
             scene.add(el)
             prev = el
             smoothTime = Math.max(smoothTime - 0.02, 0.1)
@@ -167,7 +169,7 @@ export class Snake extends Object3D implements GameObjectLifecycle {
 
         if (input.getKeyDown('w') || input.getKeyDown('ArrowUp')) {
             this.translateZ(speed * deltaTime)
-            isMoving = true
+            isMoving = true;
         }
 
         if (input.getKeyDown('s') || input.getKeyDown('ArrowDown')) {
@@ -186,6 +188,12 @@ export class Snake extends Object3D implements GameObjectLifecycle {
         if (input.getKeyDown('Shift') && input.getKeyDown('w')) {
             this.translateZ(sprintSpeed * deltaTime)
         }
+
+        if ((this.wasMoving != isMoving) && (isMoving)) {
+            (MyScene.getInstance().Scene.getObjectByName("camera") as MyCamera).FreeMode = false;
+        }
+
+        this.wasMoving = isMoving;
 
         this.snakeHeadBoundingBox.setFromObject(this.snakeHeadMesh)
 

@@ -1,4 +1,4 @@
-import { DirectionalLight, Object3D, PerspectiveCamera, Vector3 } from 'three'
+import { DirectionalLight, Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { GameObjectLifecycle } from './GameObjectLifecycle'
 import { MyScene } from './Scene'
 import { Utils } from './Utils'
@@ -14,7 +14,10 @@ export class MyCamera extends PerspectiveCamera implements GameObjectLifecycle {
     private smoothTime = 0.1;
     private maxSpeed = 7;
     private zoomSpeed = 0.02;
+    private moveSpeed = 0.05;
     private isScrolling: any;
+    private freeMode = false;
+    private isDragging = false;
 
     public constructor() {
         super(60,
@@ -24,9 +27,9 @@ export class MyCamera extends PerspectiveCamera implements GameObjectLifecycle {
         this.name = 'camera'
 
         document.addEventListener( 'wheel', (event) => {
-            window.clearTimeout(this.isScrolling);
+            //window.clearTimeout(this.isScrolling);
 
-           // let forward = new Vector3(0,0,0);
+            //let forward = new Vector3(0,0,0);
            // this.getWorldDirection(forward);
 
            // this.offset.add(this.originalOffset.normalize().multiplyScalar(event.deltaY * this.zoomSpeed));
@@ -35,6 +38,21 @@ export class MyCamera extends PerspectiveCamera implements GameObjectLifecycle {
 
             }, 60);*/
         });
+
+        document.addEventListener('mousemove', (e) => this.moveCamera(e));
+    }
+
+    public moveCamera(e: MouseEvent) {
+        if (this.isDragging) {
+            let rot = new Quaternion();
+            this.getWorldQuaternion(rot);
+
+            let forward = new Vector3(0,0,1).applyQuaternion(rot).setY(0);
+            let right = new Vector3(1, 0, 0).applyQuaternion(rot).setY(0);
+
+            this.position.add(forward.normalize().multiplyScalar(-e.movementY * this.moveSpeed));
+            this.position.add(right.normalize().multiplyScalar(-e.movementX * this.moveSpeed));
+        }
     }
 
     public get Target() {
@@ -49,6 +67,23 @@ export class MyCamera extends PerspectiveCamera implements GameObjectLifecycle {
         return this.offset
     }
 
+    public get FreeMode() {
+        return this.freeMode;
+    }
+
+    public set FreeMode(val: boolean) {
+        this.freeMode = val;
+        this.isDragging = val;
+    }
+
+    public get IsDragging() {
+        return this.isDragging;
+    }
+
+    public set IsDragging(val: boolean) {
+        this.isDragging = val;
+    }
+
     public set Offset(val: Vector3) {
         this.offset = val
         this.originalOffset = val
@@ -59,20 +94,12 @@ export class MyCamera extends PerspectiveCamera implements GameObjectLifecycle {
     }
 
     public update(deltaTime: number): void {
-        /*if (this.target) {
-            this.camera.lookAt(this.target.position)
-
-            //this.camera.position.set(this.target.position.x, 0, this.target.position.z)
-            this.camera.position.x = this.target.position.x
-            this.camera.position.z = this.target.position.z
-            //this.camera.position.y += cameraYMove
-        }*/
-
-        if (this.target) {
+        if ((this.target) && (!this.freeMode)) {
             this.lookAt(this.target.position);
 
             const targetPos = this.target.position.clone().add(this.offset);
-            const newPos = Utils.SmoothDamp(this.position.clone(), targetPos.clone(), this.velocityRef, this.smoothTime, this.maxSpeed, deltaTime)
+            //const newPos = Utils.SmoothDamp(this.position.clone(), targetPos.clone(), this.velocityRef, this.smoothTime, this.maxSpeed, deltaTime)
+            const newPos = targetPos
 
             this.position.set(newPos.x, newPos.y, newPos.z);
         }

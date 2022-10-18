@@ -3,7 +3,6 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import { MyScene } from './Scene'
 import { Clock } from 'three'
 import { InputManager } from './Input'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { MyCamera } from './Camera'
 
 const renderer = new THREE.WebGLRenderer()
@@ -14,7 +13,7 @@ function initialize(): boolean {
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    const controls = new OrbitControls(MyScene.getInstance().ActiveCamera, renderer.domElement)
+
 
     document.body.appendChild(renderer.domElement)
     document.body.appendChild(stats.dom)

@@ -30,6 +30,15 @@ export class MyScene implements GameObjectLifecycle {
         camera.position.set(6, 8, -8);
         camera.Offset = new Vector3(10, 10, -10);
         camera.Target = snake;
+
+        document.addEventListener('mousedown', (event) => {
+            camera.FreeMode = true;
+            camera.IsDragging = true;
+        });
+
+        document.addEventListener('mouseup', (event) => {
+            camera.IsDragging = false;
+        });
     }
 
     public postInit(): void {
@@ -45,7 +54,6 @@ export class MyScene implements GameObjectLifecycle {
             if ('hasLifecycle' in obj)
                 (<unknown>obj as GameObjectLifecycle).update(deltaTime);
         });
-        FoodManager.getInstance().countFoodOnScene();
     }
 
     public get Scene(): Scene
